@@ -1,18 +1,24 @@
 using System;
 using System.Security.Cryptography.X509Certificates;
 using Core.Entities;
+using Core.Specification;
 
 namespace Core.Interface.Specification;
-
+  // this specification used for the sort the product based on the brand and type and pricedesc and priceAsc
 public class ProductSpecification :BaseSpecification<Product>
 {  
-     public ProductSpecification(string ? brand ,string ? type ,string ? sort):base(x =>
-     (string.IsNullOrWhiteSpace(brand) || x.Brand==brand ) && (string.IsNullOrWhiteSpace(type) || x.Type==type)
-     
+     public ProductSpecification(ProductSpecParams specParams):base(x =>
+     (specParams.Brands.Count==0 || specParams.Brands.Contains(x.Brand)) && (specParams.Types.Count == 0|| specParams.Types.Contains(x.Type))
      
      )
+
+     
      {
-        switch(sort){
+
+      ApplyPaging(specParams.PageSize * (specParams.PageIndex-1),specParams.PageSize);
+
+      
+        switch(specParams.Sort){
 
             case "priceAsc":
               AddOrderBy(x=> x.Price);

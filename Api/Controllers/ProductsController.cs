@@ -1,6 +1,8 @@
+using Api.RequestHelpers;
 using Core.Entities;
 using Core.Interface;
 using Core.Interface.Specification;
+using Core.Specification;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,14 +17,18 @@ public class ProductsController(IGenericRepository<Product> repo) : ControllerBa
  
  [HttpGet]
 
- public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts(string ?brand ,string ?type ,string ? sort){
+ public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts([FromQuery] ProductSpecParams specParams){
 
-
-   var spec =new ProductSpecification(brand,type,sort);
+   // core - specification - product specification used this to retrive the brand type and sort 
+   var spec =new ProductSpecification(specParams);
  
     var product=await repo.ListAsync(spec);
 
-    return Ok( product);
+    var Count=await repo.CountAsync(spec);
+
+    var Pagination = new Pagination<Product>(specParams.PageIndex,specParams.PageSize,Count,product);
+
+    return Ok( Pagination);
  }
 
 
@@ -96,14 +102,18 @@ public async Task<ActionResult>DeleteProduct(int id ){
 
 public async Task<ActionResult<IReadOnlyList<string>>>GetBrands(){
 
-    return Ok();
+    var spec= new BrandListSpecification();
+
+    return Ok (await repo.ListAsync(spec));
 }
 
 
 [HttpGet("types")]
 public async Task<ActionResult<IReadOnlyList<string>>>GetTypes(){
 
-    return Ok();
+    var spec = new TypeListSpecification();
+
+    return Ok(await repo.ListAsync(spec));
 }
 
 private bool ProductExists(int id ){

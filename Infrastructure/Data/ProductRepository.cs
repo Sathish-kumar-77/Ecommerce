@@ -4,7 +4,7 @@ using Core.Entities;
 using Core.Interface;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Data;
+namespace Infrastructure.Data;                         // it is not used now we changed to generic repo
 
 public class ProductRepository(StoreContext context) : IProductRepository
 {

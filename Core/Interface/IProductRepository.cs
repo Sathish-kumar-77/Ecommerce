@@ -1,6 +1,6 @@
 using Core.Entities;
 
-namespace Core.Interface; 
+namespace Core.Interface;                // it is example Repo pattern now changed to generic pattern 
 
 
 public interface IProductRepository{
