@@ -36,5 +36,7 @@ public class ExceptionMiddleware(IHostEnvironment env,RequestDelegate next)
         var json =JsonSerializer.Serialize(response,options);
 
         return context.Response.WriteAsync(json);
+
+        
     }
 }
