@@ -28,7 +28,7 @@ public IActionResult GetNotFound(){
     return NotFound();
 }
 
-[HttpGet("internalerror ")]
+[HttpGet("internalerror")]
 
 public IActionResult GetInternalError(){
 

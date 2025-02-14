@@ -12,23 +12,29 @@ import { response } from 'express';
 import { error } from 'console';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { MatListOption, MatSelectionList, MatSelectionListChange } from '@angular/material/list';
+import { shopParams } from '../../shared/models/shopParams';
+import {MatPaginator, PageEvent} from '@angular/material/paginator'
+import { Pagination } from '../../shared/models/pagination';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-shop',
-  imports: [MatCard, ProductItemComponent ,MatButton,MatIcon,MatMenu,MatSelectionList,MatListOption,MatMenuTrigger],
+  imports: [ ProductItemComponent ,MatButton,MatIcon,MatMenu,MatSelectionList,MatListOption,MatMenuTrigger,MatPaginator,
+    FormsModule
+  
+  ],
   templateUrl: './shop.component.html',
   styleUrl: './shop.component.css'
 })
 export class ShopComponent implements OnInit {
+
   
    title = 'skinet';
     private shopService = inject (ShopService);
 
     private dialogService =inject (MatDialog)
-    products: Product[] = [];
-    selectedBrands : string []=[];
-    selectedTypes : string []=[];
-    selectedSort : string  ='name'
+    products ?: Pagination<Product>
+   
 
     sortOptions =[
       { name: 'Alphabetical' , value :'name'},
@@ -36,7 +42,9 @@ export class ShopComponent implements OnInit {
       { name: 'Price : high-low ' , value :'priceDesc'},
     
   ]
-   
+
+  shopParams =new shopParams();
+   pageSizeOptions =[5,10,15,20]
     ngOnInit(): void {
      
       this.initilizeShop();
@@ -52,13 +60,16 @@ export class ShopComponent implements OnInit {
     
 
     }
-
+onSearchChange(){
+  this.shopParams.pageNumber=1;
+  this.getProducts();
+}
 
     getProducts(){
 
-      this.shopService.getProducts(this.selectedBrands,this.selectedTypes, this.selectedSort).subscribe
+      this.shopService.getProducts(this.shopParams).subscribe
       ({
-        next: response => this.products = response.data,
+        next: response => this.products = response,
         error: error => console.log(error)
        
   
@@ -70,9 +81,17 @@ export class ShopComponent implements OnInit {
 
       if(selectedOption)
       {
-        this.selectedSort = selectedOption.value;
+        this.shopParams.sort = selectedOption.value;
+        this.shopParams.pageNumber=1;
         this.getProducts();
       }
+
+    }
+    handlePageEvent(event : PageEvent){
+
+      this.shopParams.pageNumber=event.pageIndex +1 ;
+      this.shopParams.pageSize=event.pageSize;
+      this.getProducts();
 
     }
 
@@ -80,19 +99,20 @@ export class ShopComponent implements OnInit {
 
       const dialogRef= this.dialogService.open(FiltersDialogComponent,{minWidth:'500px',
         data:{
-          selectedBrands :this.selectedBrands,
-          selectedTypes : this.selectedTypes
+          selectedBrands :this.shopParams.brands,
+          selectedTypes : this.shopParams.types
         }
       });
 
+      
       dialogRef.afterClosed().subscribe({
         next : result =>{
           if(result){
             console.log(result);
 
-            this.selectedBrands= result.selectedBrands;
-            this.selectedTypes= result.selectedTypes;
-
+            this.shopParams.brands= result.selectedBrands;
+            this.shopParams.types= result.selectedTypes;
+            this.shopParams.pageNumber=1;
             this.getProducts();
           }
         }
