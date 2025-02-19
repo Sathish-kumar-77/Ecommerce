@@ -1,7 +1,9 @@
 using Api.MiddleWare;
 using Core.Interface;
 using Infrastructure.Data;
+using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,7 @@ builder.Services.AddScoped<IProductRepository,ProductRepository>();
 
 builder.Services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
 
+builder.Services.AddSingleton<ICartService,CartService>();
 builder.Services.AddCors();
 var app = builder.Build();
 
